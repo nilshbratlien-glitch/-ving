@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4c430" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Kornettjakt" />
+  <title>Kornettjakt</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky: #7ec8e3;
+      --sky2: #bfe7f5;
+      --ink: #2b1d12;
+      --gold: #f4c430;
+      --gold2: #ffe27a;
+      --brass: #c9892a;
+      --red: #e85d4c;
+      --green: #3cb371;
+      --cream: #fff6e4;
+      --card: #fffdf8;
+      --line: rgba(43,29,18,.12);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    button, input { font-family: inherit; touch-action: manipulation; }
+    body {
+      font-family: Fredoka, Nunito, ui-rounded, system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(255,226,122,.7), transparent 50%),
+        radial-gradient(700px 380px at 100% 0%, rgba(126,200,227,.45), transparent 46%),
+        linear-gradient(#bfe7f5, #f7efe0 48%, #f3d7a0);
+      line-height: 1.3;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 16px 16px 210px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    h1 {
+      font-family: Nunito, Fredoka, sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.6rem, 7vw, 2.2rem);
+      margin: 0;
+      letter-spacing: -.04em;
+    }
+    .hero {
+      background: var(--card);
+      border: 3px solid #2b1d12;
+      border-radius: 28px;
+      padding: 14px 16px;
+      box-shadow: 6px 6px 0 #2b1d12;
+      margin-bottom: 14px;
+    }
+    .hero-top { display: flex; align-items: center; gap: 12px; }
+    .mascot {
+      width: 72px; height: 72px;
+      border-radius: 22px;
+      background: linear-gradient(#ffe27a, #f4c430);
+      border: 3px solid #2b1d12;
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+      flex: none;
+    }
+    .lvl { font-weight: 800; font-size: .95rem; }
+    .xpbar {
+      height: 14px;
+      background: #f0e2c4;
+      border: 2px solid #2b1d12;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .xpbar > i { display: block; height: 100%; width: 0; background: var(--green); }
+    .stats { display: flex; gap: 8px; margin-top: 12px; }
+    .pill {
+      flex: 1;
+      background: #fff6e4;
+      border: 2px solid #2b1d12;
+      border-radius: 16px;
+      padding: 8px;
+      text-align: center;
+      font-weight: 800;
+      font-size: .85rem;
+    }
+    .pill b { display: block; font-size: 1.25rem; }
+    .quest { margin: 0 0 8px; font-weight: 800; }
+    ol.blocks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    ol.blocks li {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: var(--card);
+      border: 3px solid #2b1d12;
+      border-radius: 22px;
+      padding: 10px 12px;
+      box-shadow: 4px 4px 0 rgba(43,29,18,.18);
+    }
+    ol.blocks li.done { background: #e4f8ea; }
+    ol.blocks li.now { outline: 4px solid var(--gold); }
+    .icon {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 1.6rem;
+      border: 2px solid #2b1d12;
+    }
+    .b-warm { background: #ffd4c4; }
+    .b-long { background: #cfe8ff; }
+    .b-slur { background: #e4d4ff; }
+    .b-rep { background: #d4f5c8; }
+    .name { font-weight: 800; font-size: 1.15rem; }
+    .hint { font-size: .86rem; color: #6a5340; margin-top: 2px; }
+    .mins {
+      font-family: Nunito, sans-serif;
+      font-weight: 900;
+      font-size: 1.4rem;
+    }
+    .mins button {
+      width: 36px; height: 36px;
+      border-radius: 12px;
+      border: 2px solid #2b1d12;
+      background: #fff;
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+    .time-edit { display: flex; align-items: center; gap: 4px; }
+    #playHud { display: none; text-align: center; padding: 10px 0 8px; }
+    body.playing #playHud { display: block; }
+    body.playing .home { display: none; }
+    .play-icon { font-size: 3rem; margin-bottom: 6px; }
+    .play-name {
+      font-family: Nunito, sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.6rem, 7vw, 2.2rem);
+      margin: 0 0 6px;
+    }
+    .play-hint { margin: 0 0 10px; color: #6a5340; font-weight: 700; }
+    .play-clock {
+      font-family: Nunito, sans-serif;
+      font-weight: 900;
+      font-size: clamp(4.4rem, 22vw, 6.6rem);
+      letter-spacing: -.06em;
+      line-height: .9;
+      background: none;
+      border: 0;
+      color: var(--ink);
+      width: 100%;
+      padding: 0;
+      cursor: pointer;
+    }
+    .play-clock.wait { color: #8a6a3a; }
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .star {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      border: 3px solid #2b1d12;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 1.3rem;
+    }
+    .star.on { background: var(--gold2); }
+    .dock {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(255,246,228,.94);
+      border-top: 3px solid #2b1d12;
+      z-index: 20;
+    }
+    .dock-inner { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .actions { display: flex; gap: 8px; }
+    .act {
+      flex: 1;
+      min-height: 58px;
+      border-radius: 18px;
+      border: 3px solid #2b1d12;
+      background: var(--gold);
+      color: var(--ink);
+      font-weight: 900;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 0 #2b1d12;
+      cursor: pointer;
+    }
+    .act:active { transform: translateY(2px); box-shadow: 0 2px 0 #2b1d12; }
+    .ghost { background: #fff; }
+    #homeBtn { display: none; }
+    body.playing #homeBtn { display: flex; }
+    .week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .day {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px solid #2b1d12;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: .72rem;
+    }
+    .day.ok { background: var(--gold2); }
+    .day.today { outline: 3px solid var(--red); }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .badge {
+      background: #fff;
+      border: 2px solid #2b1d12;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-weight: 800;
+      font-size: .78rem;
+    }
+    .pop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(43,29,18,.45);
+      z-index: 40;
+      place-items: center;
+      padding: 20px;
+    }
+    .pop.on { display: grid; }
+    .pop-card {
+      background: #fffdf8;
+      border: 4px solid #2b1d12;
+      border-radius: 28px;
+      padding: 22px 18px;
+      text-align: center;
+      max-width: 360px;
+      box-shadow: 8px 8px 0 #2b1d12;
+    }
+    .pop-card h2 { margin: 0 0 8px; font-family: Nunito, sans-serif; font-weight: 900; }
+    #popEmoji {
+      font-size: 5rem;
+      line-height: 1;
+      transform-origin: 50% 80%;
+    }
+    .pop.on #popEmoji { animation: thumb 0.7s ease both; }
+    @keyframes thumb {
+      0% { transform: scale(.2) rotate(-25deg); }
+      55% { transform: scale(1.25) rotate(12deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+    .grown {
+      margin-top: 16px;
+      font-size: .8rem;
+      color: #6a5340;
+    }
+    .grown button {
+      border: 0;
+      background: none;
+      text-decoration: underline;
+      color: #6a5340;
+      font-weight: 700;
+    }
+    #confetti { pointer-events: none; position: fixed; inset: 0; z-index: 35; }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div class="wrap">
+    <header>
+      <h1>Kornettjakt</h1>
+      <div class="pill" style="flex:none;padding:8px 12px">🔥 <b id="streakVal">0</b></div>
+    </header>
+
+    <div class="hero home">
+      <div class="hero-top">
+        <div class="mascot" id="mascot">🎺</div>
+        <div style="flex:1">
+          <div class="lvl" id="lvlLine">Nivå 1 · Pip Kornetten</div>
+          <div class="xpbar"><i id="xpFill"></i></div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="pill">Stjerner <b id="starTotal">0</b></div>
+        <div class="pill">Dager <b id="dayTotal">0</b></div>
+        <div class="pill">I dag <b id="todayMins">0</b> min</div>
+      </div>
+      <div class="week" id="week"></div>
+      <div class="badges" id="badges"></div>
+    </div>
+
+    <p class="quest home" id="questLine">Dagens oppdrag: 4 stempler.</p>
+    <ol class="blocks home" id="blocks"></ol>
+    <p class="grown home"><button type="button" id="resetBtn">Ny dag</button> · leppene hviler etter oppdraget</p>
+
+    <div id="playHud">
+      <div class="play-icon" id="playIcon">🎺</div>
+      <div class="play-name" id="playName"></div>
+      <p class="play-hint" id="playHint"></p>
+      <button type="button" class="play-clock" id="playClock">0:00</button>
+      <div class="stars" id="playStars"></div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <div class="dock-inner">
+      <div id="live" style="font-weight:800;text-align:center">Klar når du er</div>
+      <div class="actions">
+        <button type="button" class="act" id="startBtn">Start</button>
+        <button type="button" class="act ghost" id="doneBtn">Ferdig!</button>
+        <button type="button" class="act ghost" id="homeBtn">Oversikt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pop" id="pop">
+    <div class="pop-card">
+      <div id="popEmoji" style="font-size:3rem">⭐</div>
+      <h2 id="popTitle">Bra!</h2>
+      <p id="popText"></p>
+      <button type="button" class="act" id="popOk" style="margin-top:12px;width:100%">Ja!</button>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var BLOCKS = [
+    { id: "warm", name: "Oppvarming", icon: "🌬️", hint: "Spill på munnstykket. Lette toner. Myk luft.", def: 3, xp: 10 },
+    { id: "long", name: "Lange toner", icon: "〰️", hint: "Én tone. Fin klang. Hold den ut.", def: 4, xp: 15 },
+    { id: "slur", name: "Fleksibilitet", icon: "🌈", hint: "Samme luft. Tonene glir. Uten tunge.", def: 4, xp: 15 },
+    { id: "rep", name: "Øve på musikk", icon: "🎵", hint: "Øv på musikk fra lærer eller korps.", def: 8, xp: 20 }
+  ];
+  var LEVELS = [
+    "Pip med hetta på",
+    "Pip som finner B",
+    "Pip med rød i kinnene",
+    "Pip som tør å spille høyt",
+    "Pip i feil dirigentøyeblikk",
+    "Pip, helt av spyttventilen",
+    "Pip som traff høy G",
+    "Pip i 17. mai-toget",
+    "Pip med sordin og hemmelig plan",
+    "Pip som blåser hull i veggen",
+    "Pip bak dirigenten",
+    "Pip med tre feil og et smil",
+    "Pip som eier lange toner",
+    "Pip i første rekke, nesten",
+    "Pip med lyden av iskrembil",
+    "Pip som slår ut trompetene",
+    "Pip, konge av pauseblås",
+    "Pip med munnstykket på snei",
+    "Pip som nesten aldri mister takten",
+    "Pip Super-spyttventil",
+    "Pip med fanfare i panna",
+    "Pip som vekker naboen pent",
+    "Pip av B-dur-slekten",
+    "Pip med korps i blodet",
+    "Pip som gjør dirigenten stille",
+    "Pip med gull i leppene",
+    "Pip, uoffisiell mester",
+    "Pip som eier hele øvinga",
+    "Pip, keiser av kornetten",
+    "Pip, hornet selv"
+  ];
+  var BADGE_DEFS = [
+    { n: 1, id: "first", name: "Første oppdrag", e: "⭐" },
+    { n: 3, id: "3day", name: "3 dager på rad", e: "✨" },
+    { n: 7, id: "week", name: "Ukeshornet", e: "🏅" },
+    { n: 14, id: "fort", name: "To uker", e: "🏆" },
+    { n: 30, id: "month", name: "Messingmåned", e: "👑" }
+  ];
+
+  function storeGet(k, f) {
+    try { var v = localStorage.getItem(k); return v == null ? f : v; } catch (e) { return f; }
+  }
+  function storeSet(k, v) {
+    try { localStorage.setItem(k, v); } catch (e) {}
+  }
+  function todayStamp() {
+    var d = new Date();
+    var p = function (n) { return n < 10 ? "0" + n : String(n); };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+  }
+  function weekdayIdx() { return (new Date().getDay() + 6) % 7; }
+
+  var state = {
+    mins: {},
+    done: [],
+    activeId: null,
+    armed: false,
+    xp: 0,
+    stars: 0,
+    days: [],
+    streak: 0,
+    lastDay: "",
+    badges: []
+  };
+  try { state.mins = JSON.parse(storeGet("cqMins", "{}")); } catch (e) {}
+  try { state.done = JSON.parse(storeGet("cqDone", "[]")); } catch (e) {}
+  try { state.days = JSON.parse(storeGet("cqDays", "[]")); } catch (e) {}
+  try { state.badges = JSON.parse(storeGet("cqBadges", "[]")); } catch (e) {}
+  state.xp = parseInt(storeGet("cqXp", "0"), 10) || 0;
+  state.stars = parseInt(storeGet("cqStars", "0"), 10) || 0;
+  state.streak = parseInt(storeGet("cqStreak", "0"), 10) || 0;
+  state.lastDay = storeGet("cqLast", "");
+
+  BLOCKS.forEach(function (b) {
+    if (!state.mins[b.id]) state.mins[b.id] = b.def;
+  });
+
+  function rollDay() {
+    var t = todayStamp();
+    if (storeGet("cqSessionDate", "") === t) return;
+    state.done = [];
+    storeSet("cqDone", "[]");
+    storeSet("cqSessionDate", t);
+  }
+  rollDay();
+
+  var countdown = null;
+  var blockLeft = 0;
+  var blockPaused = false;
+  var blockEndsAt = 0;
+  var blockRemainMs = 0;
+  var audioCtx = null;
+
+  function nowMs() { return Date.now(); }
+  function remainingMs() {
+    if (blockPaused || state.armed) return Math.max(0, blockRemainMs);
+    if (blockEndsAt) return Math.max(0, blockEndsAt - nowMs());
+    return Math.max(0, blockLeft * 1000);
+  }
+  function syncLeft() {
+    var ms = remainingMs();
+    blockLeft = ms <= 0 ? 0 : Math.ceil(ms / 1000);
+    return ms;
+  }
+  function stopTimer() {
+    if (countdown) { clearInterval(countdown); countdown = null; }
+  }
+  function fmt(secs) {
+    var m = Math.floor(Math.max(0, secs) / 60);
+    var s = String(Math.max(0, secs) % 60);
+    if (s.length < 2) s = "0" + s;
+    return m + ":" + s;
+  }
+  function findBlock(id) {
+    for (var i = 0; i < BLOCKS.length; i++) if (BLOCKS[i].id === id) return BLOCKS[i];
+    return null;
+  }
+  function nextUndone(exceptId) {
+    for (var i = 0; i < BLOCKS.length; i++) {
+      if (BLOCKS[i].id === exceptId) continue;
+      if (state.done.indexOf(BLOCKS[i].id) < 0) return BLOCKS[i];
+    }
+    return null;
+  }
+  var XP_NEED = [0, 50, 130, 240, 380, 560, 780, 1060, 1150, 1245, 1345, 1450, 1560, 1675, 1795, 1920, 2050, 2185, 2325, 2470, 2620, 2775, 2935, 3100, 3270, 3445, 3625, 3810, 4000, 4195];
+  function level() {
+    var lv = 0;
+    for (var i = 0; i < XP_NEED.length; i++) {
+      if (state.xp >= XP_NEED[i]) lv = i;
+    }
+    return lv;
+  }
+  function xpInto() {
+    var lv = level();
+    if (lv >= XP_NEED.length - 1) return 80;
+    return state.xp - XP_NEED[lv];
+  }
+  function xpSpan() {
+    var lv = level();
+    if (lv >= XP_NEED.length - 1) return 80;
+    return XP_NEED[lv + 1] - XP_NEED[lv];
+  }
+
+  function ensureAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+  function blip(freq, start, dur, vol) {
+    if (!ensureAudio()) return;
+    var o = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    o.type = "triangle";
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(start); o.stop(start + dur + 0.02);
+  }
+  function fanfare() {
+    if (!ensureAudio()) return;
+    var t = audioCtx.currentTime;
+    blip(392, t, 0.16, 0.18);
+    blip(523.25, t + 0.12, 0.16, 0.2);
+    blip(659.25, t + 0.24, 0.28, 0.22);
+  }
+  function burst() {
+    var c = document.getElementById("confetti");
+    var ctx = c.getContext("2d");
+    c.width = innerWidth; c.height = innerHeight;
+    var bits = [];
+    for (var i = 0; i < 48; i++) {
+      bits.push({
+        x: innerWidth / 2, y: innerHeight / 3,
+        vx: (Math.random() - 0.5) * 14,
+        vy: Math.random() * -12 - 4,
+        s: 6 + Math.random() * 8,
+        col: ["#f4c430", "#e85d4c", "#3cb371", "#7ec8e3", "#fff"][i % 5]
+      });
+    }
+    var n = 0;
+    function tick() {
+      ctx.clearRect(0, 0, c.width, c.height);
+      bits.forEach(function (b) {
+        b.vy += 0.35; b.x += b.vx; b.y += b.vy;
+        ctx.fillStyle = b.col;
+        ctx.fillRect(b.x, b.y, b.s, b.s);
+      });
+      n++;
+      if (n < 50) requestAnimationFrame(tick);
+      else ctx.clearRect(0, 0, c.width, c.height);
+    }
+    tick();
+  }
+
+  function persist() {
+    storeSet("cqMins", JSON.stringify(state.mins));
+    storeSet("cqDone", JSON.stringify(state.done));
+    storeSet("cqDays", JSON.stringify(state.days));
+    storeSet("cqBadges", JSON.stringify(state.badges));
+    storeSet("cqXp", String(state.xp));
+    storeSet("cqStars", String(state.stars));
+    storeSet("cqStreak", String(state.streak));
+    storeSet("cqLast", state.lastDay);
+  }
+
+  function completeSession() {
+    var t = todayStamp();
+    if (state.days.indexOf(t) < 0) {
+      state.days.push(t);
+      if (state.days.length > 60) state.days = state.days.slice(-60);
+      if (state.lastDay) {
+        var prev = new Date(state.lastDay + "T12:00:00");
+        var cur = new Date(t + "T12:00:00");
+        var diff = Math.round((cur - prev) / 86400000);
+        state.streak = diff === 1 ? state.streak + 1 : 1;
+      } else state.streak = 1;
+      state.lastDay = t;
+    }
+    BADGE_DEFS.forEach(function (b) {
+      if (state.days.length >= b.n && state.badges.indexOf(b.id) < 0) state.badges.push(b.id);
+    });
+    persist();
+    burst();
+    fanfare();
+    showPop("👍", "Tommel opp!", "Oppdrag fullført. Leppene skal hvile nå. Kom tilbake i morgen for rekka.");
+  }
+
+  function showPop(e, title, text) {
+    document.getElementById("popEmoji").textContent = e;
+    document.getElementById("popTitle").textContent = title;
+    document.getElementById("popText").textContent = text;
+    document.getElementById("pop").className = "pop on";
+  }
+
+  function markDone(id) {
+    if (state.done.indexOf(id) >= 0) return;
+    var b = findBlock(id);
+    state.done.push(id);
+    state.stars += 1;
+    state.xp += b ? b.xp : 10;
+    persist();
+    fanfare();
+  }
+
+  function arm(b) {
+    state.activeId = b.id;
+    state.armed = true;
+    blockPaused = true;
+    blockRemainMs = state.mins[b.id] * 60 * 1000;
+    blockEndsAt = 0;
+    stopTimer();
+    syncLeft();
+    document.getElementById("startBtn").textContent = "Start";
+    document.getElementById("live").textContent = "Gjør deg klar · " + b.name;
+    render();
+  }
+  function startActive() {
+    var b = findBlock(state.activeId);
+    if (!b) return;
+    state.armed = false;
+    blockPaused = false;
+    blockRemainMs = Math.max(1000, remainingMs());
+    blockEndsAt = nowMs() + blockRemainMs;
+    document.getElementById("startBtn").textContent = "Pause";
+    ensureAudio();
+    stopTimer();
+    countdown = setInterval(tick, 200);
+    tick();
+    render();
+  }
+  function pauseActive() {
+    if (!state.activeId || blockPaused || !countdown) return;
+    blockRemainMs = remainingMs();
+    blockPaused = true;
+    blockEndsAt = 0;
+    stopTimer();
+    syncLeft();
+    document.getElementById("startBtn").textContent = "Fortsett";
+    document.getElementById("live").textContent = "Pause";
+    render();
+  }
+  function endActive() {
+    var id = state.activeId;
+    if (id) markDone(id);
+    stopTimer();
+    var next = nextUndone(id);
+    if (!next) {
+      state.activeId = null;
+      state.armed = false;
+      blockPaused = false;
+      document.getElementById("startBtn").textContent = "Start";
+      document.getElementById("live").textContent = "Oppdrag fullført";
+      persist();
+      render();
+      completeSession();
+      return;
+    }
+    arm(next);
+  }
+  function tick() {
+    if (!state.activeId) { stopTimer(); return; }
+    var ms = syncLeft();
+    document.getElementById("playClock").textContent = fmt(blockLeft);
+    document.getElementById("live").textContent = findBlock(state.activeId).name + " · " + fmt(blockLeft);
+    if (ms <= 0) endActive();
+  }
+
+  function render() {
+    document.body.classList.toggle("playing", !!state.activeId);
+    document.getElementById("streakVal").textContent = String(state.streak);
+    document.getElementById("starTotal").textContent = String(state.stars);
+    document.getElementById("dayTotal").textContent = String(state.days.length);
+    var todayM = 0;
+    BLOCKS.forEach(function (b) {
+      if (state.done.indexOf(b.id) >= 0) todayM += state.mins[b.id];
+    });
+    document.getElementById("todayMins").textContent = String(todayM);
+    document.getElementById("lvlLine").textContent = "Nivå " + (level() + 1) + " · " + LEVELS[level()];
+    document.getElementById("xpFill").style.width = Math.round(xpInto() / xpSpan() * 100) + "%";
+    document.getElementById("mascot").textContent = level() >= 5 ? "🏆" : "🎺";
+
+    var w = document.getElementById("week");
+    var names = ["M", "T", "O", "T", "F", "L", "S"];
+    var html = "";
+    var todayI = weekdayIdx();
+    var now = new Date();
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(now);
+      d.setDate(now.getDate() - todayI + i);
+      var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      var ok = state.days.indexOf(stamp) >= 0;
+      html += "<div class=\"day" + (ok ? " ok" : "") + (i === todayI ? " today" : "") + "\">" + names[i] + "</div>";
+    }
+    w.innerHTML = html;
+
+    var bh = "";
+    BADGE_DEFS.forEach(function (b) {
+      if (state.badges.indexOf(b.id) >= 0) bh += "<span class=\"badge\">" + b.e + " " + b.name + "</span>";
+    });
+    document.getElementById("badges").innerHTML = bh;
+
+    var left = 4 - state.done.length;
+    document.getElementById("questLine").textContent = left <= 0 ? "Oppdrag ferdig. La leppene hvile." : "Dagens oppdrag: " + left + " stempel" + (left === 1 ? "" : "er") + " igjen.";
+
+    var list = "";
+    BLOCKS.forEach(function (b) {
+      var done = state.done.indexOf(b.id) >= 0;
+      var nowB = state.activeId === b.id;
+      list += "<li class=\"" + (done ? "done" : "") + (nowB ? " now" : "") + "\">";
+      list += "<div class=\"icon b-" + b.id + "\">" + (done ? "⭐" : b.icon) + "</div>";
+      list += "<div><div class=\"name\">" + b.name + "</div><div class=\"hint\">" + b.hint + "</div></div>";
+      list += "<div class=\"time-edit\"><button type=\"button\" data-minus=\"" + b.id + "\">−</button>";
+      list += "<div class=\"mins\">" + state.mins[b.id] + "</div>";
+      list += "<button type=\"button\" data-plus=\"" + b.id + "\">+</button></div></li>";
+    });
+    document.getElementById("blocks").innerHTML = list;
+    var btns = document.querySelectorAll("#blocks [data-minus], #blocks [data-plus]");
+    for (var t = 0; t < btns.length; t++) {
+      btns[t].onclick = function () {
+        var id = this.getAttribute("data-plus") || this.getAttribute("data-minus");
+        var dir = this.getAttribute("data-plus") ? 1 : -1;
+        var n = state.mins[id] + dir;
+        if (n < 1 || n > 15) return;
+        state.mins[id] = n;
+        persist();
+        render();
+      };
+    }
+
+    var b = findBlock(state.activeId);
+    if (b) {
+      document.getElementById("playIcon").textContent = b.icon;
+      document.getElementById("playName").textContent = b.name;
+      document.getElementById("playHint").textContent = b.hint;
+      document.getElementById("playClock").textContent = fmt(blockLeft || state.mins[b.id] * 60);
+      document.getElementById("playClock").className = "play-clock" + (state.armed || blockPaused ? " wait" : "");
+    }
+    var sh = "";
+    BLOCKS.forEach(function (x) {
+      sh += "<div class=\"star" + (state.done.indexOf(x.id) >= 0 ? " on" : "") + "\">⭐</div>";
+    });
+    document.getElementById("playStars").innerHTML = sh;
+    document.getElementById("doneBtn").style.display = state.activeId ? "flex" : "none";
+  }
+
+  document.getElementById("popOk").onclick = function () {
+    document.getElementById("pop").className = "pop";
+  };
+  document.getElementById("playClock").onclick = function () {
+    document.getElementById("startBtn").click();
+  };
+  document.getElementById("homeBtn").onclick = function () {
+    if (state.activeId && countdown && !blockPaused) pauseActive();
+    state.activeId = null;
+    state.armed = false;
+    stopTimer();
+    document.getElementById("startBtn").textContent = "Start";
+    document.getElementById("live").textContent = "Oversikt";
+    render();
+  };
+  document.getElementById("doneBtn").onclick = function () {
+    if (!state.activeId) return;
+    endActive();
+  };
+  document.getElementById("startBtn").onclick = function () {
+    if (state.activeId && countdown && !blockPaused) { pauseActive(); return; }
+    if (state.activeId && (state.armed || blockPaused) && remainingMs() > 0) { startActive(); return; }
+    var next = nextUndone(null);
+    if (!next) {
+      document.getElementById("live").textContent = "Oppdrag fullført";
+      completeSession();
+      return;
+    }
+    if (!state.activeId) arm(next);
+    startActive();
+  };
+  document.getElementById("resetBtn").onclick = function () {
+    state.done = [];
+    state.activeId = null;
+    state.armed = false;
+    stopTimer();
+    storeSet("cqSessionDate", todayStamp());
+    persist();
+    document.getElementById("startBtn").textContent = "Start";
+    document.getElementById("live").textContent = "Ny dag";
+    render();
+  };
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") {
+      rollDay();
+      if (state.activeId && !blockPaused && !state.armed) tick();
+      render();
+    }
+  });
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+  render();
+})();
+</script>
+</body>
+</html>
